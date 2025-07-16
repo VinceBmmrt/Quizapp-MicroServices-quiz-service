@@ -1,6 +1,7 @@
 package com.telusko.quiz_service.service;
 
 import com.telusko.quiz_service.dao.QuizDao;
+import com.telusko.quiz_service.feign.QuizInterface;
 import com.telusko.quiz_service.model.QuestionWrapper;
 import com.telusko.quiz_service.model.Quiz;
 import com.telusko.quiz_service.model.Response;
@@ -17,22 +18,18 @@ public class QuizService {
 
     @Autowired
     QuizDao quizDao;
-//    @Autowired
-//    QuestionDao questionDao;
+    @Autowired
+    QuizInterface quizInterface;
 
     public ResponseEntity<String> createQuiz(String category, int numQ, String title) {
-//        List<Integer> questions = call the generate url - Rest Template  http://localhost:8080/question/generate
-//
-//        try {
-//            Quiz quiz = new Quiz();
-//            quiz.setTitle(title);
-//            quiz.setQuestions(questions);
-//            quizDao.save(quiz);
-//            return new ResponseEntity<>("Success", HttpStatus.CREATED);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-        return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        List<Integer> questions = quizInterface.getQuestionsForQuiz(category, numQ).getBody();
+        Quiz quiz = new Quiz();
+        quiz.setTitle(title);
+        quiz.setQuestionsIds(questions);
+        quizDao.save(quiz);
+        return new ResponseEntity<>("Success", HttpStatus.CREATED);
+
+
     }
 
     public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(Integer id) {
